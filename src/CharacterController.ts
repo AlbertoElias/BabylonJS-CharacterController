@@ -13,26 +13,22 @@ import {
     Matrix,
     DeepImmutable,
     AbstractMesh,
-    PlaySoundAction,
-    InstancedMesh,
     Sound,
-    AnimationRange,
     Animatable,
-    AnimationEvent
-} from "babylonjs";
-
-
-export class CharacterController {
-
-    private _avatar: Mesh = null;;
-    private _skeleton: Skeleton = null;
+  } from "@babylonjs/core";
+  
+  
+  export class CharacterController {
+  
+    private _avatar: Mesh | null = null
+    private _skeleton: Skeleton | null = null
     private _camera: ArcRotateCamera;
     private _scene: Scene;
     public getScene(): Scene {
         return this._scene;
     }
-
-
+  
+  
     private _gravity: number = 9.8;
     //slopeLimit in degrees
     private _minSlopeLimit: number = 30;
@@ -40,32 +36,32 @@ export class CharacterController {
     //slopeLimit in radians
     private _sl1: number = Math.PI * this._minSlopeLimit / 180;
     private _sl2: number = Math.PI * this._maxSlopeLimit / 180;
-
+  
     //The av will step up a stair only if it is closer to the ground than the indicated value.
     private _stepOffset: number = 0.25;
     //toal amount by which the av has moved up
     private _vMoveTot: number = 0;
     //position of av when it started moving up
     private _vMovStartPos: Vector3 = Vector3.Zero();
-
-
+  
+  
     private _actionMap: ActionMap = new ActionMap();
-
+  
     private _cameraElastic: boolean = true;
     private _cameraTarget: Vector3 = Vector3.Zero();
     //should we go into first person view when camera is near avatar (radius is lowerradius limit)
     private _noFirstPerson: boolean = false;
-
-
-
+  
+  
+  
     public setSlopeLimit(minSlopeLimit: number, maxSlopeLimit: number) {
         this._minSlopeLimit = minSlopeLimit;
         this._maxSlopeLimit = maxSlopeLimit;
-
+  
         this._sl1 = Math.PI * this._minSlopeLimit / 180;
         this._sl2 = Math.PI * this._maxSlopeLimit / 180;
     }
-
+  
     /**
      * The av will step up a stair only if it is closer to the ground than the indicated value.
      * Default value is 0.25 m
@@ -73,7 +69,7 @@ export class CharacterController {
     public setStepOffset(stepOffset: number) {
         this._stepOffset = stepOffset;
     }
-
+  
     public setWalkSpeed(n: number) {
         this._actionMap.walk.speed = n;
     }
@@ -115,7 +111,7 @@ export class CharacterController {
     public setGravity(n: number) {
         this._gravity = n;
     }
-
+  
     /**
      * Use this to provide animationGroups to the character controller.
      * Provide the AnimationGroups using a Map
@@ -138,7 +134,7 @@ export class CharacterController {
         this._isAG = true;
         this.setActionMap(<ActionMap>agMap);
     }
-
+  
     /**
      * Use this to provide AnimationRanges to the character controller.
      * Provide the AnimationRanges using a Map
@@ -154,12 +150,12 @@ export class CharacterController {
      * 
      * @param arMap a map of character controller animation name to animationRange data
      */
-
+  
     public setAnimationRanges(arMap: {}) {
         this._isAG = false;
         this.setActionMap(<ActionMap>arMap);
     }
-
+  
     /**
      * updates action data in the cc actionMap
      * with action data from the provided/input actionMap 
@@ -180,15 +176,15 @@ export class CharacterController {
     public setActionMap(inActMap: ActionMap): string {
         let agMap: boolean = false;
         let inActData: ActionData;
-
-
+  
+  
         let ccActionNames: string[] = Object.keys(this._actionMap);
         for (let ccActionName of ccActionNames) {
             let ccActData = this._actionMap[ccActionName];
             //some keys could map to functions (like reset())
             if (!(ccActData instanceof ActionData)) continue;
             ccActData.exist = false;
-
+  
             inActData = inActMap[ccActData.id];
             //in previous version of cc the key value was AnimationGroup rather than ActionData
             //lets accomodate that for backward compatibility
@@ -226,17 +222,17 @@ export class CharacterController {
         this._prevActData = null;
         if (agMap) return "ag"; else return "ar";
     }
-
+  
     public getActionMap(): ActionMap {
         let map: ActionMap = new ActionMap();
-
+  
         let keys: string[] = Object.keys(this._actionMap);
         for (let key of keys) {
             let actDataI = this._actionMap[key];
-
+  
             if (!(actDataI instanceof ActionData)) continue;
             if (!actDataI.exist) continue;
-
+  
             let actDataO: ActionData = map[actDataI.id];
             actDataO.ag = actDataI.ag;
             actDataO.name = actDataI.name;
@@ -247,10 +243,10 @@ export class CharacterController {
             actDataO.sound = actDataI.sound;
             actDataO.exist = actDataI.exist;
         }
-
+  
         return map;
     }
-
+  
     public getSettings(): CCSettings {
         let ccs: CCSettings = new CCSettings();
         ccs.faceForward = this.isFaceForward();
@@ -267,10 +263,10 @@ export class CharacterController {
         ccs.noFirstPerson = this._noFirstPerson;
         ccs.stepOffset = this._stepOffset;
         ccs.sound = this._stepSound;
-
+  
         return ccs;
     }
-
+  
     public setSettings(ccs: CCSettings) {
         this.setFaceForward(ccs.faceForward);
         this.setMode(ccs.topDown ? 1 : 0);
@@ -285,14 +281,14 @@ export class CharacterController {
         this.setNoFirstPerson(ccs.noFirstPerson);
         this.setStepOffset(ccs.stepOffset);
         this.setSound(ccs.sound);
-
+  
     }
-
+  
     private _setAnim(anim: ActionData, animName?: string | AnimationGroup, rate?: number, loop?: boolean) {
-
+  
         //animation range need skeleton
         if (!this._isAG && this._skeleton == null) return;
-
+  
         if (animName != null) {
             if (this._isAG) {
                 if (!(animName instanceof AnimationGroup)) return;
@@ -308,11 +304,11 @@ export class CharacterController {
                 }
             }
         }
-
+  
         if (loop != null) anim.loop = loop;
         if (rate != null) anim.rate = rate;
     }
-
+  
     public enableBlending(n: number) {
         if (this._isAG) {
             let keys: string[] = Object.keys(this._actionMap);
@@ -332,7 +328,7 @@ export class CharacterController {
                 this._skeleton.enableBlending(n);
         }
     }
-
+  
     public disableBlending() {
         if (this._isAG) {
             let keys: string[] = Object.keys(this._actionMap);
@@ -348,7 +344,7 @@ export class CharacterController {
             }
         }
     }
-
+  
     //setters for animations
     public setWalkAnim(rangeName: string | AnimationGroup, rate: number, loop: boolean) {
         this._setAnim(this._actionMap.walk, rangeName, rate, loop);
@@ -406,8 +402,8 @@ export class CharacterController {
     public setFallAnim(rangeName: string | AnimationGroup, rate: number, loop: boolean) {
         this._setAnim(this._actionMap.fall, rangeName, rate, loop);
     }
-
-
+  
+  
     _stepSound: Sound;
     // setters for sound
     public setSound(sound: Sound) {
@@ -426,8 +422,8 @@ export class CharacterController {
         this._actionMap.fall.sound = null;
         this._actionMap.slideBack.sound = null;
     }
-
-
+  
+  
     // setters for keys
     public setWalkKey(key: string) {
         this._actionMap.walk.key = key.toLowerCase();
@@ -450,23 +446,23 @@ export class CharacterController {
     public setJumpKey(key: string) {
         this._actionMap.idleJump.key = key.toLowerCase();
     }
-
+  
     public setCameraElasticity(b: boolean) {
         this._cameraElastic = b;
     }
-
+  
     public setElasticiSteps(n: number) {
         this._elasticSteps = n;
     }
-
+  
     public makeObstructionInvisible(b: boolean) {
         this._makeInvisible = b;
     }
     public setCameraTarget(v: Vector3) {
         this._cameraTarget.copyFrom(v);
     }
-
-
+  
+  
     /**
      * user should call this whenever the user changes the camera checkCollision 
      * property
@@ -478,14 +474,14 @@ export class CharacterController {
     public setNoFirstPerson(b: boolean) {
         this._noFirstPerson = b;
     }
-
+  
     /**
      * if av has the required anim (walk, run etc) then 
      * mark that anim as existing
      * 
      * @param skel 
      */
-
+  
     private _checkAnimRanges(skel: Skeleton) {
         let keys: string[] = Object.keys(this._actionMap);
         for (let key of keys) {
@@ -503,7 +499,7 @@ export class CharacterController {
         }
         this._checkFastAnims();
     }
-
+  
     /**
      * if fast anims do not exist then use their slow counterpart as them but double the rate at which they play
      */
@@ -514,7 +510,7 @@ export class CharacterController {
         this._copySlowAnims(this._actionMap.strafeRightFast, this._actionMap.strafeRight);
         this._copySlowAnims(this._actionMap.strafeLeftFast, this._actionMap.strafeLeft);
     }
-
+  
     private _copySlowAnims(f: ActionData, s: ActionData) {
         if (f.exist) return;
         if (!s.exist) return;
@@ -523,7 +519,7 @@ export class CharacterController {
         f.name = s.name;
         f.rate = s.rate * 2;
     }
-
+  
     /**
      * Use this to make the  character controller suitable for a isometeric/top down games or  fps/third person game.
      * 1 In isometric/top down games the camera direction has no bearing on avatar movement.
@@ -562,7 +558,7 @@ export class CharacterController {
     public isTurningOff() {
         return this._noRot;
     }
-
+  
     /**
         * checks if a have left hand , right hand issue.
         * In other words if a mesh is a LHS mesh in RHS system or 
@@ -590,7 +586,7 @@ export class CharacterController {
             this._signLHS_RHS = -1;
         }
     }
-
+  
     /**
      * Use setFaceForward(true|false) to indicate that the avatar's face  points forward (true) or backward (false).
      * The avatar's face  points forward if its face is looking in positive local Z axis direction
@@ -603,15 +599,15 @@ export class CharacterController {
     private _av2cam;
     public setFaceForward(b: boolean) {
         this._ff = b;
-
+  
         this._rhsSign = this._scene.useRightHandedSystem ? -1 : 1;
-
+  
         if (!this._hasCam) {
             this._av2cam = 0;
             this._ffSign = 1;
             return;
         }
-
+  
         if (this._isLHS_RHS) {
             this._av2cam = b ? Math.PI / 2 : 3 * Math.PI / 2;
             this._ffSign = b ? 1 : -1;
@@ -619,13 +615,13 @@ export class CharacterController {
             this._av2cam = b ? 3 * Math.PI / 2 : Math.PI / 2;
             this._ffSign = b ? -1 : 1;
         }
-
+  
     }
-
+  
     public isFaceForward() {
         return this._ff;
     }
-
+  
     private checkAGs(agMap: {}) {
         let keys: string[] = Object.keys(this._actionMap);
         for (let key of keys) {
@@ -637,12 +633,12 @@ export class CharacterController {
             }
         }
     }
-
+  
     // check if any of the mesh on the node tree is refrenced by any animation group
     private _containsAG(node: Node, ags: AnimationGroup[], fromRoot: boolean) {
         let r: Node;
         let ns: Node[];
-
+  
         if (fromRoot) {
             r = this._getRoot(node);
             ns = r.getChildren((n) => { return (n instanceof TransformNode) }, false);
@@ -650,7 +646,7 @@ export class CharacterController {
             r = node;
             ns = [r];
         }
-
+  
         for (let ag of ags) {
             let tas: TargetedAnimation[] = ag.targetedAnimations;
             for (let ta of tas) {
@@ -661,13 +657,13 @@ export class CharacterController {
         }
         return false;
     }
-
+  
     //get the root of Node
     private _getRoot(tn: Node): Node {
         if (tn.parent == null) return tn;
         return this._getRoot(tn.parent);
     }
-
+  
     private _started: boolean = false;
     public start() {
         if (this._started) return;
@@ -681,7 +677,7 @@ export class CharacterController {
         if (this._ekb) this._addkeylistener();
         this._scene.registerBeforeRender(this._renderer);
     }
-
+  
     public stop() {
         if (!this._started) return;
         this._started = false;
@@ -689,7 +685,7 @@ export class CharacterController {
         this._removekeylistener();
         this._prevActData = null;
     }
-
+  
     /**
      * use pauseAnim to stop the charactere controller from playing
      * any animation on the character
@@ -699,7 +695,7 @@ export class CharacterController {
     private _stopAnim: boolean = false;
     public pauseAnim() {
         this._stopAnim = true;
-
+  
         if (this._prevActData != null && this._prevActData.exist) {
             //stop current animation
             if (this._isAG) {
@@ -714,11 +710,11 @@ export class CharacterController {
                 this._prevActData.sound.stop();
             }
             clearInterval(this._sndId);
-
+  
             this._scene.unregisterBeforeRender(this._renderer);
         }
     }
-
+  
     /**
      * use resumeAnim to resume the character controller playing
      * animations on the character.
@@ -729,40 +725,40 @@ export class CharacterController {
         this._prevActData = null;
         this._scene.registerBeforeRender(this._renderer);
     }
-
+  
     private _prevActData: ActionData = null;
     private _avStartPos: Vector3 = Vector3.Zero();
     private _grounded: boolean = false;
     //distance by which AV would move down if in freefall
     private _freeFallDist: number = 0;
-
+  
     //how many minimum contiguos frames should the AV have been in free fall
     //before we assume AV is in big freefall.
     //we will use this to remove animation flicker during move down a slope (fall, move, fall move etc)
     //TODO: base this on slope - large slope large count
     private _fallFrameCountMin: number = 50;
     private _fallFrameCount: number = 0;
-
+  
     private _inFreeFall: boolean = false;
     private _wasWalking: boolean = false;
     private _wasRunning: boolean = false;
     private _moveVector: Vector3;
-
+  
     //used only in mode 1
     //value 1 or -1 , -1 if avatar is facing camera
     //private _notFacingCamera = 1;
-
+  
     private _isAvFacingCamera(): number {
         if (!this._hasCam) return 1;
         if (Vector3.Dot(this._avatar.forward, this._avatar.position.subtract(this._camera.position)) < 0) return 1
         else return -1;
     }
-
+  
     private _moveAVandCamera() {
         this._avStartPos.copyFrom(this._avatar.position);
         let actData: ActionData = null;
         const dt: number = this._scene.getEngine().getDeltaTime() / 1000;
-
+  
         if (this._act._jump && !this._inFreeFall) {
             this._grounded = false;
             this._idleFallTime = 0;
@@ -777,11 +773,11 @@ export class CharacterController {
         if (!this._stopAnim && this._hasAnims && actData != null) {
             if (this._prevActData !== actData) {
                 if (actData.exist) {
-
+  
                     //animation frame counts
                     let c: number;
                     let fps: number = 30;
-
+  
                     if (this._isAG) {
                         if (this._prevActData != null && this._prevActData.exist) this._prevActData.ag.stop();
                         actData.ag.start(actData.loop, actData.rate);
@@ -792,7 +788,7 @@ export class CharacterController {
                         fps = a.getAnimations()[0].animation.framePerSecond;
                         c = this._skeleton.getAnimationRange(actData.name).to - this._skeleton.getAnimationRange(actData.name).from;
                     }
-
+  
                     //SOUND
                     //TODO do sound as animationevent.
                     if (this._prevActData != null && this._prevActData.sound != null) {
@@ -811,28 +807,28 @@ export class CharacterController {
         this._updateTargetValue();
         return;
     }
-
+  
     private _soundLoopTime = 700;
     private _sndId = null;
-
+  
     //verical position of AV when it is about to start a jump
     private _jumpStartPosY: number = 0;
     //for how long the AV has been in the jump
     private _jumpTime: number = 0;
     private _doJump(dt: number): ActionData {
-
+  
         let actData: ActionData = null;
         actData = this._actionMap.runJump;
         if (this._jumpTime === 0) {
             this._jumpStartPosY = this._avatar.position.y;
         }
-
+  
         this._jumpTime = this._jumpTime + dt;
-
+  
         let forwardDist: number = 0;
         let jumpDist: number = 0;
         let disp: Vector3;
-
+  
         if (this._hasCam && this._mode != 1 && !this._noRot) this._avatar.rotation.y = this._av2cam - this._camera.alpha;
         if (this._wasRunning || this._wasWalking) {
             if (this._wasRunning) {
@@ -881,7 +877,7 @@ export class CharacterController {
         }
         return actData;
     }
-
+  
     private _calcJumpDist(speed: number, dt: number): number {
         //up velocity at the begining of the lastt frame (v=u+at)
         let js: number = speed - this._gravity * this._jumpTime;
@@ -889,7 +885,7 @@ export class CharacterController {
         let jumpDist: number = js * dt - 0.5 * this._gravity * dt * dt;
         return jumpDist;
     }
-
+  
     /**
      * does cleanup at the end of a jump
      */
@@ -899,58 +895,58 @@ export class CharacterController {
         this._wasWalking = false;
         this._wasRunning = false;
     }
-
+  
     /**
      * checks if two vectors v1 and v2 are equal within a precision of p
      */
     private _areVectorsEqual(v1: Vector3, v2: Vector3, p: number) {
         return ((Math.abs(v1.x - v2.x) < p) && (Math.abs(v1.y - v2.y) < p) && (Math.abs(v1.z - v2.z) < p));
     }
-
+  
     /*
      * returns the slope (in radians) of a vector in the vertical plane
      */
     private _verticalSlope(v: Vector3): number {
         return Math.atan(Math.abs(v.y / Math.sqrt(v.x * v.x + v.z * v.z)));
     }
-
+  
     //for how long has the av been falling while moving
     private _movFallTime: number = 0;
     private _sign = 1;
     private _isTurning = false;
     private _noRot = false;
     private _doMove(dt: number): ActionData {
-
+  
         //initial down velocity
         const u: number = this._movFallTime * this._gravity
         //calculate the distance by which av should fall down since last frame
         //assuming it is in freefall
         this._freeFallDist = u * dt + this._gravity * dt * dt / 2;
-
+  
         this._movFallTime = this._movFallTime + dt;
-
+  
         let moving: boolean = false;
         let actdata: ActionData = null;
-
+  
         if (this._inFreeFall) {
             this._moveVector.y = -this._freeFallDist;
             moving = true;
         }
-
-
+  
+  
         //rotate avatar with respect to camera direction. 
         this._rotateAV2C();
-
+  
         //rotate the avatar in case player is trying to rotate the avatar. rotate the camera too if camera turning is on
         actdata = this._rotateAVnC(actdata, moving, dt);
-
+  
         //now that avatar is rotated properly, construct the vector to move the avatar 
         //donot move the avatar if avatar is in freefall
-
+  
         if (!this._inFreeFall) {
             this._wasWalking = false;
             this._wasRunning = false;
-
+  
             let sign: number;
             let horizDist: number = 0;
             switch (true) {
@@ -1004,9 +1000,9 @@ export class CharacterController {
                     break;
             }
         }
-
+  
         // move the avatar
-
+  
         if (moving) {
             if (this._moveVector.length() > 0.001) {
                 this._avatar.moveWithCollisions(this._moveVector);
@@ -1075,7 +1071,7 @@ export class CharacterController {
         }
         return actdata;
     }
-
+  
     /**
      * rotate avatar with respect to camera direction. 
      */
@@ -1116,7 +1112,7 @@ export class CharacterController {
                 }
             }
     }
-
+  
     //rotate the avatar in case player is trying to rotate the avatar. rotate the camera too if camera turning is on
     private _rotateAVnC(anim: ActionData, moving: boolean, dt: number): ActionData {
         if (!(this._noRot && this._mode == 0) && (!this._act._stepLeft && !this._act._stepRight) && (this._act._turnLeft || this._act._turnRight)) {
@@ -1162,18 +1158,18 @@ export class CharacterController {
                 if (this._hasCam)
                     this._camera.alpha = this._camera.alpha + this._rhsSign * turnAngle * a;
             }
-
+  
             this._avatar.rotation.y = this._avatar.rotation.y + turnAngle * a;
         }
         return anim;
     }
-
+  
     private _endFreeFall(): void {
         this._movFallTime = 0;
         this._fallFrameCount = 0;
         this._inFreeFall = false;
     }
-
+  
     //for how long has the av been falling while idle (not moving)
     private _idleFallTime: number = 0;
     private _doIdle(dt: number): ActionData {
@@ -1185,8 +1181,8 @@ export class CharacterController {
         this._movFallTime = 0;
         let anim: ActionData = this._actionMap.idle;
         this._fallFrameCount = 0;
-
-
+  
+  
         if (dt === 0) {
             this._freeFallDist = 5;
         } else {
@@ -1228,7 +1224,7 @@ export class CharacterController {
         }
         return anim;
     }
-
+  
     private _groundFrameCount = 0;
     private _groundFrameMax = 10;
     /**
@@ -1246,7 +1242,7 @@ export class CharacterController {
         this._grounded = false;
         this._groundFrameCount = 0;
     }
-
+  
     private _savedCameraCollision: boolean = true;
     private _inFP = false;
     private _updateTargetValue() {
@@ -1254,9 +1250,9 @@ export class CharacterController {
         //donot move camera if av is trying to clinb steps
         if (this._vMoveTot == 0)
             this._avatar.position.addToRef(this._cameraTarget, this._camera.target);
-
+  
         if (this._camera.radius > this._camera.lowerRadiusLimit) { if (this._cameraElastic || this._makeInvisible) this._handleObstruction(); }
-
+  
         if (this._camera.radius <= this._camera.lowerRadiusLimit) {
             if (!this._noFirstPerson && !this._inFP) {
                 this._avatar.visibility = 0;
@@ -1272,7 +1268,7 @@ export class CharacterController {
             this._camera.checkCollisions = this._savedCameraCollision;
         }
     }
-
+  
     private _ray: Ray = new Ray(Vector3.Zero(), Vector3.One(), 1);
     private _rayDir: Vector3 = Vector3.Zero();
     //camera seems to get stuck into things
@@ -1283,7 +1279,7 @@ export class CharacterController {
     private _makeInvisible = false;
     private _elasticSteps = 50;
     private _alreadyInvisible: AbstractMesh[];
-
+  
     /**
      * The following method handles the use case wherein some mesh
      * comes between the avatar and the camera thus obstructing the view
@@ -1296,22 +1292,22 @@ export class CharacterController {
      * b) move the camera in front of the obstructing mesh
      */
     private _handleObstruction() {
-
+  
         //get vector from av (camera.target) to camera
         this._camera.position.subtractToRef(this._camera.target, this._rayDir);
         //start ray from av to camera
         this._ray.origin = this._camera.target;
         this._ray.length = this._rayDir.length();
         this._ray.direction = this._rayDir.normalize();
-
+  
         //TODO 
         //handle case were pick is with a child of avatar, avatar atatchment. etc
         const pis: PickingInfo[] = this._scene.multiPickWithRay(this._ray, (mesh) => {
             if (mesh == this._avatar) return false;
             else return true;
         });
-
-
+  
+  
         if (this._makeInvisible) {
             this._prevPickedMeshes = this._pickedMeshes;
             if (pis.length > 0) {
@@ -1334,17 +1330,17 @@ export class CharacterController {
                 this._prevPickedMeshes.length = 0;
             }
         }
-
+  
         if (this._cameraElastic) {
             if (pis.length > 0) {
                 // postion the camera in front of the mesh that is obstructing camera
-
+  
                 //if only one obstruction and it is invisible then if it is not collidable or our camera is not collidable then do nothing
                 if ((pis.length == 1 && !this._isSeeAble(pis[0].pickedMesh)) && (!pis[0].pickedMesh.checkCollisions || !this._camera.checkCollisions)) return;
-
+  
                 //if our camera is collidable then we donot want it to get stuck behind another collidable obsrtucting mesh
                 let pp: Vector3 = null;
-
+  
                 //we will asume the order of picked meshes is from closest to avatar to furthest
                 //we should get the first one which is visible or invisible and collidable
                 for (let i = 0; i < pis.length; i++) {
@@ -1358,7 +1354,7 @@ export class CharacterController {
                     }
                 }
                 if (pp == null) return;
-
+  
                 const c2p: Vector3 = this._camera.position.subtract(pp);
                 //note that when camera is collidable, changing the orbital camera radius may not work.
                 //changing the radius moves the camera forward (with collision?) and collision can interfere with movement
@@ -1368,7 +1364,7 @@ export class CharacterController {
                 //when just 1 unit distance left, lets snap to the final position.
                 //when calculating final position make sure the camera does not get stuck at the pickposition especially
                 //if collision is on
-
+  
                 const l: number = c2p.length();
                 if (this._camera.checkCollisions) {
                     let step: Vector3;
@@ -1386,7 +1382,7 @@ export class CharacterController {
             }
         }
     }
-
+  
     //how many ways can a mesh be invisible?
     private _isSeeAble(mesh: AbstractMesh): boolean {
         if (!mesh.isVisible) return false;
@@ -1395,13 +1391,13 @@ export class CharacterController {
         return true;
         //what about vertex color? groan!
     }
-
-
+  
+  
     private _move: boolean = false;
     public anyMovement(): boolean {
         return (this._act._walk || this._act._walkback || this._act._turnLeft || this._act._turnRight || this._act._stepLeft || this._act._stepRight);
     }
-
+  
     private _onKeyDown(e: KeyboardEvent) {
         if (!e.key) return;
         if (e.repeat) return;
@@ -1444,7 +1440,7 @@ export class CharacterController {
         }
         this._move = this.anyMovement();
     }
-
+  
     private _onKeyUp(e: KeyboardEvent) {
         if (!e.key) return;
         switch (e.key.toLowerCase()) {
@@ -1482,7 +1478,7 @@ export class CharacterController {
         }
         this._move = this.anyMovement();
     }
-
+  
     private _ekb: boolean = true;
     public isKeyBoardEnabled(): boolean {
         return this._ekb;
@@ -1495,19 +1491,19 @@ export class CharacterController {
             this._removekeylistener();
         }
     }
-
+  
     private _addkeylistener() {
         let canvas: HTMLCanvasElement = this._scene.getEngine().getRenderingCanvas();
         canvas.addEventListener("keyup", this._handleKeyUp, false);
         canvas.addEventListener("keydown", this._handleKeyDown, false);
     }
-
+  
     private _removekeylistener() {
         let canvas: HTMLCanvasElement = this._scene.getEngine().getRenderingCanvas();
         canvas.removeEventListener("keyup", this._handleKeyUp, false);
         canvas.removeEventListener("keydown", this._handleKeyDown, false);
     }
-
+  
     // control movement by commands rather than keyboard.
     public walk(b: boolean) {
         this._act._walk = b;
@@ -1561,7 +1557,7 @@ export class CharacterController {
     public idle() {
         this._act.reset();
     }
-
+  
     private _act: _Action;
     private _renderer: () => void;
     private _handleKeyUp: (e) => void;
@@ -1570,15 +1566,15 @@ export class CharacterController {
     public isAg() {
         return this._isAG;
     }
-
-
-
-
+  
+  
+  
+  
     private _findSkel(n: Node): Skeleton {
         let root = this._root(n);
-
+  
         if (root instanceof Mesh && root.skeleton) return root.skeleton;
-
+  
         //find all child meshes which have skeletons
         let ms = root.getChildMeshes(
             false,
@@ -1590,19 +1586,19 @@ export class CharacterController {
                 }
                 return false;
             });
-
+  
         //return the skeleton of the first child mesh
         if (ms.length > 0) return ms[0].skeleton; else return null;
-
+  
     }
-
+  
     private _root(tn: Node): Node {
         if (tn.parent == null) return tn;
         return this._root(tn.parent);
     }
-
+  
     public setAvatar(avatar: Mesh, faceForward: boolean = false): boolean {
-
+  
         let rootNode = this._root(avatar);
         if (rootNode instanceof Mesh) {
             this._avatar = rootNode;
@@ -1610,51 +1606,51 @@ export class CharacterController {
             console.error("Cannot move this mesh. The root node of the mesh provided is not a mesh");
             return false;
         }
-
+  
         this._skeleton = this._findSkel(avatar);
         this._isAG = this._containsAG(avatar, this._scene.animationGroups, true);
-
+  
         this._actionMap.reset();
-
+  
         //animation ranges
         if (!this._isAG && this._skeleton != null) this._checkAnimRanges(this._skeleton);
-
+  
         this._setRHS(avatar);
         this.setFaceForward(faceForward);
-
+  
         return true;
     }
-
+  
     public getAvatar() {
         return this._avatar;
     }
-
+  
     // force a skeleton to be the avatar skeleton
     // should not be calling this normally
     public setAvatarSkeleton(skeleton: Skeleton) {
         this._skeleton = skeleton;
-
-
+  
+  
         if (this._skeleton != null && this._skelDrivenByAG(skeleton)) this._isAG = true; else this._isAG = false;
-
+  
         if (!this._isAG && this._skeleton != null) this._checkAnimRanges(this._skeleton);
     }
-
-
+  
+  
     // this check if any of this skeleton animations is referenced by any targetedAnimation in any of the animationgroup in the scene.
     private _skelDrivenByAG(skeleton: Skeleton) {
         return skeleton.animations.some(sa => this._scene.animationGroups.some(ag => ag.children.some(ta => ta.animation == sa)));
     }
-
+  
     public getSkeleton() {
         return this._skeleton;
     }
-
+  
     // does this character have any animations ?
     // remember we can use meshes without anims as characters too
     private _hasAnims: boolean = false;
     private _hasCam: boolean = true;
-
+  
     /**
      * The avatar/character can be made up of multiple meshes arranged in a hierarchy.
      * As such we will pick the root of the hierarchy as the avatar.
@@ -1675,9 +1671,9 @@ export class CharacterController {
      * @param faceForward 
      */
     constructor(avatar: Mesh, camera: ArcRotateCamera, scene: Scene, actionMap?: {}, faceForward = false) {
-
+  
         this._camera = camera;
-
+  
         //if camera is null assume this would be used to control an NPC
         //we cannot use mode 0 as that is dependent on camera being present. so force mode 1
         if (this._camera == null) {
@@ -1685,41 +1681,41 @@ export class CharacterController {
             this.setMode(1);
         }
         this._scene = scene;
-
+  
         let success = this.setAvatar(avatar, faceForward);
         if (!success) {
             console.error("unable to set avatar");
         }
-
-
+  
+  
         let dataType: string = null;
         if (actionMap != null) {
             dataType = this.setActionMap(<ActionMap>actionMap);
         }
-
+  
         //try to use the existing avatar animations
-
+  
         //animation ranges
         if (!this._isAG && this._skeleton != null) this._checkAnimRanges(this._skeleton);
         //animation groups
         if (this._isAG) {
             //TODO
         }
-
+  
         if (this._hasCam) this._savedCameraCollision = this._camera.checkCollisions;
-
+  
         this._act = new _Action();
-
+  
         this._renderer = () => { this._moveAVandCamera() };
         this._handleKeyUp = (e) => { this._onKeyUp(e) };
         this._handleKeyDown = (e) => { this._onKeyDown(e) };
     }
-}
-
-
-
-class _Action {
-
+  }
+  
+  
+  
+  class _Action {
+  
     public _walk: boolean = false;
     public _walkback: boolean = false;
     public _turnRight: boolean = false;
@@ -1727,15 +1723,15 @@ class _Action {
     public _stepRight: boolean = false;
     public _stepLeft: boolean = false;
     public _jump: boolean = false;
-
+  
     // speed modifier - changes speed of movement
     public _speedMod: boolean = false;
-
-
+  
+  
     constructor() {
         this.reset();
     }
-
+  
     reset() {
         this._walk = false;
         this._walkback = false;
@@ -1746,9 +1742,9 @@ class _Action {
         this._jump = false;
         this._speedMod = false;
     }
-}
-
-export class ActionData {
+  }
+  
+  export class ActionData {
     public id: string;
     public speed: number;
     //_ds default speed.  speed is set to this on reset
@@ -1757,7 +1753,7 @@ export class ActionData {
     public key: string;
     //_dk defailt key
     public dk: string;
-
+  
     //animation data
     //if _ag is null then assuming animation range and use _name to play animationrange
     //instead of name maybe call it arName?
@@ -1765,9 +1761,9 @@ export class ActionData {
     public ag: AnimationGroup;
     public loop: boolean = true;
     public rate: number = 1;
-
+  
     public exist: boolean = false;
-
+  
     public constructor(id?: string, speed = 1, key?: string) {
         this.id = id;
         this.speed = speed;
@@ -1775,7 +1771,7 @@ export class ActionData {
         this.key = key;
         this.dk = key;
     }
-
+  
     public reset() {
         this.name = "";
         this.speed = this.ds;
@@ -1785,11 +1781,11 @@ export class ActionData {
         this.sound = null;
         this.exist = false;
     }
-
-}
-
-//not really a "Map"
-export class ActionMap {
+  
+  }
+  
+  //not really a "Map"
+  export class ActionMap {
     public walk = new ActionData("walk", 3, "w");
     public walkBack = new ActionData("walkBack", 1.5, "s");
     public walkBackFast = new ActionData("walkBackFast", 3, "na");
@@ -1807,7 +1803,7 @@ export class ActionMap {
     public strafeRight = new ActionData("strafeRight", 1.5, "e");
     public strafeRightFast = new ActionData("strafeRightFast", 3, "na");
     public slideBack = new ActionData("slideBack", 0, "na");
-
+  
     public reset() {
         let keys: string[] = Object.keys(this);
         for (let key of keys) {
@@ -1816,9 +1812,9 @@ export class ActionMap {
             act.reset()
         }
     }
-};
-
-export class CCSettings {
+  };
+  
+  export class CCSettings {
     public faceForward: boolean;
     public gravity: number;
     public minSlopeLimit: number;
@@ -1834,4 +1830,5 @@ export class CCSettings {
     public turningOff: boolean = true;
     public keyboard: boolean = true;
     public sound: Sound;
-}
+  }
+  
