@@ -16,7 +16,7 @@ function main() {
   scene.clearColor = new BABYLON.Color3(0.75, 0.75, 0.75);
   scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
-  scene.debugLayer.show({ showExplorer: true, embedMode: true });
+  // scene.debugLayer.show({ showExplorer: true, embedMode: true });
 
   var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
   light.intensity = 0.3;
@@ -62,7 +62,7 @@ var cc;
 
 function loadPlayer(scene, engine, canvas) {
   //BABYLON.SceneLoader.ImportMesh("", "player/", "Vincent-frontFacing.babylon", scene, function (meshes, particleSystems, skeletons) {
-  BABYLON.SceneLoader.ImportMesh("", "player/", "starterAvatars.babylon", scene, function (meshes, particleSystems, skeletons) {
+  BABYLON.SceneLoader.ImportMesh("", "player/", "Vincent-backFacing.babylon", scene, function (meshes, particleSystems, skeletons) {
     var player = meshes[0];
     var skeleton = skeletons[0];
     player.skeleton = skeleton;

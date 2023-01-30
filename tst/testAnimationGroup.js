@@ -72,7 +72,9 @@ function main() {
 }
 
 function loadPlayer(scene, engine, canvas) {
-  BABYLON.SceneLoader.ImportMesh("", "player/", "Vincent-frontFacing.glb", scene, (meshes, particleSystems, skeletons) => {
+  console.log('huh')
+  BABYLON.SceneLoader.ImportMesh("", "https://models.readyplayer.me/63c96afcf5987e4c180668b1.glb", "", scene, (meshes, particleSystems, skeletons) => {
+    // BABYLON.SceneLoader.ImportMesh("", "player/", "Vincent-frontFacing.glb", scene, (meshes, particleSystems, skeletons) => {
     var player = meshes[0];
 
     player.position = new BABYLON.Vector3(0, 12, 0);
@@ -89,8 +91,7 @@ function loadPlayer(scene, engine, canvas) {
 
     //rotate the camera behind the player
     //.glbs are RHS
-    player.rotation.y = Math.PI / 4;
-    var alpha = (3 * Math.PI) / 2 - player.rotation.y;
+    var alpha = Math.PI / 2 + player.rotation.y
     var beta = Math.PI / 2.5;
     var target = new BABYLON.Vector3(player.position.x, player.position.y + 1.5, player.position.z);
     var camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", alpha, beta, 5, target, scene);
@@ -105,9 +106,9 @@ function loadPlayer(scene, engine, canvas) {
     // below are all standard camera settings.
     // nothing specific to charcter controller
     camera.wheelPrecision = 15;
-    camera.checkCollisions = false;
+    camera.checkCollisions = true;
     // how close can the camera come to player
-    camera.lowerRadiusLimit = 2;
+    camera.lowerRadiusLimit = 1.5;
     // how far can the camera go from the player
     camera.upperRadiusLimit = 20;
     camera.attachControl(canvas, false);
@@ -132,9 +133,11 @@ function loadPlayer(scene, engine, canvas) {
     cc = new CharacterController(player, camera, scene, agMap, true);
 
     cc.setMode(0);
+    cc.setTurningOff(true)
+    cc.setFaceForward(true)
     //below makes the controller point the camera at the player head which is approx
     //1.5m above the player origin
-    cc.setCameraTarget(new BABYLON.Vector3(0, 2, 0));
+    cc.setCameraTarget(new BABYLON.Vector3(0, 1.5, 0));
 
     //if the camera comes close to the player then we want cc to enter first person mode.
     cc.setNoFirstPerson(false);

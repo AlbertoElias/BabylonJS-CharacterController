@@ -1682,6 +1682,7 @@ import {
         }
         this._scene = scene;
   
+        console.log('fsdfsdf')
         let success = this.setAvatar(avatar, faceForward);
         if (!success) {
             console.error("unable to set avatar");
