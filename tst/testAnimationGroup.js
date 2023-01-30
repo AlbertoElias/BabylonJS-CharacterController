@@ -72,9 +72,8 @@ function main() {
 }
 
 function loadPlayer(scene, engine, canvas) {
-  console.log('huh')
   // BABYLON.SceneLoader.ImportMesh("", "https://models.readyplayer.me/63c96afcf5987e4c180668b1.glb", "", scene, (meshes, particleSystems, skeletons) => {
-    BABYLON.SceneLoader.ImportMesh("", "player/", "Vincent-frontFacing.glb", scene, (meshes, particleSystems, skeletons) => {
+  BABYLON.SceneLoader.ImportMesh("", "player/", "Vincent-frontFacing.glb", scene, (meshes, particleSystems, skeletons) => {
     var player = meshes[0];
 
     //clean up this player mesh

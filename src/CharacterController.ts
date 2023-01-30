@@ -1334,8 +1334,21 @@ import {
         //TODO 
         //handle case were pick is with a child of avatar, avatar atatchment. etc
         const pis: PickingInfo[] = this._scene.multiPickWithRay(this._ray, (mesh) => {
-            if (mesh == this._avatar) return false;
-            else return true;
+            if (mesh == this._avatar) {
+                return false;
+            }
+            //if mesh is a child of avatar, do not pick it
+            const avatarChildPicked = this._avatar.getChildMeshes(false, (n) => {
+                if (n instanceof Mesh && n == mesh) {
+                    return true
+                }
+                return false;
+            });
+            if (avatarChildPicked.length > 0) {
+                return false;
+            }
+            
+            return true;
         });
   
   
